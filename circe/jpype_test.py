@@ -3,7 +3,7 @@ import jpype.imports
 from jpype.types import *
 import json
 
-jpype.startJVM(classpath=[r'C:\Users\FMa1805.36838\Repositories\python-circe\inst\java\*'])
+jpype.startJVM(classpath=[r'C:\Users\FMa1805.36838\Repositories\python-circe\circe\java\*'])
 
 cohort = {
       "ConceptSets": [
