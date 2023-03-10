@@ -6,11 +6,12 @@ setup(
     description='Python wrapper for Circe',
     long_description='Python wrapper for Circe',
     long_description_content_type='text/markdown',
-    version='0.0.2',
+    version='0.0.3',
     packages=find_namespace_packages(),
     include_package_data=True,
     package_data={
-        'circe': ['*.jar', '*.json'],
+        'circe.java': ['*.jar'],
+        'circe.data': ['*.json']
     },
     python_requires='>=3.9',
     install_requires=[
