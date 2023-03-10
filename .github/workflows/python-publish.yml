@@ -6,20 +6,58 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package
+name: PyPi Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'version/*.*.*'
 
 permissions:
   contents: read
 
 jobs:
-  deploy:
+
+  version:
+    name: Apply version
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: split
+        id: split
+        run: |
+          TAG=${GITHUB_REF#refs/*/}
+          VERSION=${TAG#version/*}
+          PARTS=(${VERSION//\./ })
+          MAJOR=${PARTS[0]}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "major=${MAJOR}" >> $GITHUB_OUTPUT
+          echo "minor=${PARTS[1]}" >> $GITHUB_OUTPUT
+          PARTS2=( $(grep -Eo '[[:digit:]]+|[^[:digit:]]+' <<< ${PARTS[2]} ) )
+          echo "patch=${PARTS2[0]}" >> $GITHUB_OUTPUT
+          echo "stage=${PARTS2[1]}" >> $GITHUB_OUTPUT
+          echo "build=${PARTS2[2]}" >> $GITHUB_OUTPUT
+
+  github-release:
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      version: ${{ needs.version.outputs.version }}
+      stage: ${{ needs.version.outputs.stage }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Create a Release
+      uses: marvinpinto/action-automatic-releases@6273874b61ebc8c71f1a61b2d98e234cf389b303
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "v${{ env.version }}"
+        prerelease: ${{ env.stage != '' }}
+        title: "${{ env.version }}"
+
+  pypi-publish:
 
     runs-on: ubuntu-latest
-
+    needs: [version, github-release]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python
@@ -37,5 +75,4 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
-        packages_dir: ./
 
