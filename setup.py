@@ -6,7 +6,7 @@ setup(
     description='Python wrapper for Circe',
     long_description='Python wrapper for Circe',
     long_description_content_type='text/markdown',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_namespace_packages(),
     include_package_data=True,
     package_data={
